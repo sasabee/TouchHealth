@@ -1,4 +1,4 @@
-import 'package:dr_ai/data/source/firebase/firebase_service.dart';
+import 'package:touchhealth/data/source/firebase/firebase_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/model/feedback_model.dart';
 import 'package:equatable/equatable.dart';

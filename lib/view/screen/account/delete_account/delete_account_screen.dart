@@ -1,5 +1,5 @@
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/controller/account/account_cubit.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/controller/account/account_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

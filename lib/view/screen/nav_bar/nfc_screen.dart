@@ -1,12 +1,15 @@
-import 'package:dr_ai/core/utils/constant/api_url.dart';
-import 'package:dr_ai/core/utils/helper/scaffold_snakbar.dart';
-import 'package:dr_ai/core/utils/helper/download_dialog.dart';
-import 'package:dr_ai/view/widget/button_loading_indicator.dart';
+import 'package:touchhealth/core/utils/constant/api_url.dart';
+import 'package:touchhealth/core/utils/helper/scaffold_snakbar.dart';
+import 'package:touchhealth/core/utils/helper/download_dialog.dart';
+import 'package:touchhealth/view/widget/button_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:dr_ai/core/service/nfc_service.dart';
+import 'package:touchhealth/core/service/nfc_service.dart';
+import 'package:touchhealth/core/service/qr_service.dart';
+import 'package:touchhealth/core/service/text_input_service.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'dart:developer';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -36,7 +39,13 @@ class _NFCScreenState extends State<NFCScreen> {
   late final MedicalRecordCubit _cubit;
   bool _isLoading = true;
   final NfcService _nfcService = NfcService();
+  final QrService _qrService = QrService();
+  final TextInputService _textInputService = TextInputService();
   bool _isScanning = false;
+  bool _isQrScanning = false;
+  bool _isTextInputting = false;
+  MobileScannerController? _qrController;
+  final TextEditingController _textController = TextEditingController();
   String? _downloadedFilePath;
   bool _isFileDownloaded = false;
 
@@ -52,6 +61,7 @@ class _NFCScreenState extends State<NFCScreen> {
     }
 
     _setupWebViewController();
+    _qrController = MobileScannerController();
   }
 
   void _setupWebViewController() {
@@ -75,7 +85,36 @@ class _NFCScreenState extends State<NFCScreen> {
         ),
       );
 
-    _controller.loadRequest(Uri.parse(_cubit.initialUrl));
+    // Load initial URL after cubit initialization
+    _loadInitialUrl();
+  }
+
+  Future<void> _loadInitialUrl() async {
+    try {
+      String initialUrl;
+      if (widget.id != null) {
+        // Wait for the cubit to process the ID and generate URL
+        await Future.delayed(const Duration(milliseconds: 100));
+        await _cubit.loadMedicalRecord(widget.id!);
+        initialUrl = _cubit.state.url;
+      } else {
+        await _cubit.initWebView();
+        initialUrl = _cubit.state.url;
+      }
+      
+      if (initialUrl.isNotEmpty) {
+        await _controller.loadRequest(Uri.parse(initialUrl));
+      }
+    } catch (e) {
+      log('Error loading initial URL: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _qrController?.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   Future<void> _scanNFC() async {
@@ -103,13 +142,17 @@ class _NFCScreenState extends State<NFCScreen> {
         log('NFC Tag ID from service: $nfcId');
 
         if (nfcId != null && nfcId.isNotEmpty) {
-          _cubit.updateWebViewId(nfcId);
-          final url = '${_cubit.baseUrl}$nfcId';
-          log('Loading WebView URL: $url');
-          _controller.loadRequest(Uri.parse(url));
-          _cubit.nfcID = nfcId;
-          setState(() {});
-          customSnackBar(context, 'NFC tag read successfully: ID $nfcId');
+          // Use the async loadMedicalRecord method instead of direct URL loading
+          _cubit.loadMedicalRecord(nfcId).then((_) {
+            // After loading, update the WebView with the generated URL
+            _controller.loadRequest(Uri.parse(_cubit.state.url));
+            setState(() {});
+            customSnackBar(context, 'NFC tag read successfully: ID $nfcId');
+          }).catchError((error) {
+            log('Error loading medical record: $error');
+            customSnackBar(context, 'Error loading medical record: $error', ColorManager.error);
+          });
+          _cubit.nfcID = nfcId; // Store the ID for PDF download
         } else {
           customSnackBar(context, 'Could not find ID in NFC tag');
         }
@@ -125,6 +168,427 @@ class _NFCScreenState extends State<NFCScreen> {
           _isScanning = false;
         });
         customSnackBar(context, 'NFC scan timed out');
+      },
+    );
+  }
+
+  Future<void> _scanQRCode() async {
+    setState(() {
+      _isQrScanning = true;
+    });
+
+    bool isAvailable = await _qrService.isCameraAvailable();
+
+    if (!isAvailable) {
+      customSnackBar(context, 'Camera is not available on this device');
+      setState(() {
+        _isQrScanning = false;
+      });
+      return;
+    }
+
+    await _qrService.scanQrCode(
+      onQrCodeScanned: (data) {
+        setState(() {
+          _isQrScanning = false;
+        });
+
+        String? qrId = data['tagId'];
+        log('QR Code ID from service: $qrId');
+
+        if (qrId != null && qrId.isNotEmpty) {
+          // Use the async loadMedicalRecord method instead of direct URL loading
+          _cubit.loadMedicalRecord(qrId).then((_) {
+            // After loading, update the WebView with the generated URL
+            _controller.loadRequest(Uri.parse(_cubit.state.url));
+            setState(() {});
+            customSnackBar(context, 'QR code scanned successfully: ID $qrId');
+          }).catchError((error) {
+            log('Error loading medical record: $error');
+            customSnackBar(context, 'Error loading medical record: $error', ColorManager.error);
+          });
+          _cubit.nfcID = qrId; // Use same variable for compatibility
+        } else {
+          customSnackBar(context, 'Could not find ID in QR code');
+        }
+      },
+      onError: (error) {
+        setState(() {
+          _isQrScanning = false;
+        });
+        customSnackBar(context, 'Error: $error', ColorManager.error);
+      },
+      onTimeout: () {
+        setState(() {
+          _isQrScanning = false;
+        });
+        customSnackBar(context, 'QR code scan timed out');
+      },
+    );
+  }
+
+  void _showQRScanner() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(10),
+          child: Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.7,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.black,
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: ColorManager.green,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Scan QR Code',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _isQrScanning = false;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: MobileScanner(
+                    controller: _qrController,
+                    onDetect: (capture) {
+                      final List<Barcode> barcodes = capture.barcodes;
+                      for (final barcode in barcodes) {
+                        if (barcode.rawValue != null) {
+                          Navigator.of(context).pop();
+                          _qrService.processQrData(
+                            barcode.rawValue!,
+                            (data) {
+                              setState(() {
+                                _isQrScanning = false;
+                              });
+
+                              String? qrId = data['tagId'];
+                              log('QR Code ID from scanner: $qrId');
+
+                              if (qrId != null && qrId.isNotEmpty) {
+                                _cubit.updateWebViewId(qrId);
+                                final url = '${_cubit.baseUrl}$qrId';
+                                log('Loading WebView URL: $url');
+                                _controller.loadRequest(Uri.parse(url));
+                                _cubit.nfcID = qrId;
+                                setState(() {});
+                                customSnackBar(context, 'QR code scanned successfully: ID $qrId');
+                              } else {
+                                customSnackBar(context, 'Could not find ID in QR code');
+                              }
+                            },
+                          );
+                          break;
+                        }
+                      }
+                    },
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: ColorManager.green.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Position the QR code within the frame to scan',
+                    style: TextStyle(
+                      color: ColorManager.green,
+                      fontSize: 14.sp,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _scanTextInput() async {
+    setState(() {
+      _isTextInputting = true;
+    });
+
+    bool isAvailable = await _textInputService.isTextInputAvailable();
+
+    if (!isAvailable) {
+      customSnackBar(context, 'Text input is not available');
+      setState(() {
+        _isTextInputting = false;
+      });
+      return;
+    }
+
+    await _textInputService.processTextInput(
+      onTextInputProcessed: (data) {
+        setState(() {
+          _isTextInputting = false;
+        });
+
+        String? textId = data['tagId'];
+        log('Text Input ID from service: $textId');
+
+        if (textId != null && textId.isNotEmpty) {
+          // Use the async loadMedicalRecord method instead of direct URL loading
+          _cubit.loadMedicalRecord(textId).then((_) {
+            // After loading, update the WebView with the generated URL
+            _controller.loadRequest(Uri.parse(_cubit.state.url));
+            setState(() {});
+            customSnackBar(context, 'Medical ID entered successfully: ID $textId');
+          }).catchError((error) {
+            log('Error loading medical record: $error');
+            customSnackBar(context, 'Error loading medical record: $error', ColorManager.error);
+          });
+          _cubit.nfcID = textId; // Use same variable for compatibility
+        } else {
+          customSnackBar(context, 'Could not process medical ID');
+        }
+      },
+      onError: (error) {
+        setState(() {
+          _isTextInputting = false;
+        });
+        customSnackBar(context, 'Error: $error', ColorManager.error);
+      },
+      onTimeout: () {
+        setState(() {
+          _isTextInputting = false;
+        });
+        customSnackBar(context, 'Text input timed out');
+      },
+    );
+  }
+
+  void _showTextInputDialog() {
+    _textController.clear();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: ColorManager.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Enter Medical Record ID',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: ColorManager.green,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          _isTextInputting = false;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: ColorManager.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Please enter the medical record ID manually:',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: ColorManager.grey,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _textController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter medical record ID...',
+                    hintStyle: TextStyle(
+                      color: ColorManager.grey.withOpacity(0.6),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: ColorManager.green.withOpacity(0.3),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: ColorManager.green,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: ColorManager.green.withOpacity(0.3),
+                      ),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.medical_information,
+                      color: ColorManager.green,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: ColorManager.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Examples: 12345, MED-001, REC123456',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: ColorManager.grey.withOpacity(0.7),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _isTextInputting = false;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorManager.grey.withOpacity(0.2),
+                          foregroundColor: ColorManager.grey,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final inputText = _textController.text.trim();
+                          if (inputText.isNotEmpty) {
+                            Navigator.of(context).pop();
+                            _textInputService.processTextData(
+                              inputText,
+                              (data) {
+                                setState(() {
+                                  _isTextInputting = false;
+                                });
+
+                                String? textId = data['tagId'];
+                                log('Text Input ID from dialog: $textId');
+
+                                if (textId != null && textId.isNotEmpty) {
+                                  _cubit.updateWebViewId(textId);
+                                  final url = '${_cubit.baseUrl}$textId';
+                                  log('Loading WebView URL: $url');
+                                  _controller.loadRequest(Uri.parse(url));
+                                  _cubit.nfcID = textId;
+                                  setState(() {});
+                                  customSnackBar(context, 'Medical ID entered successfully: ID $textId');
+                                } else {
+                                  customSnackBar(context, 'Invalid medical ID format');
+                                }
+                              },
+                            );
+                          } else {
+                            customSnackBar(context, 'Please enter a medical record ID');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorManager.green,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Load Record',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -550,6 +1014,48 @@ class _NFCScreenState extends State<NFCScreen> {
                 ),
               ),
             ),
+          if (_isQrScanning)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                  ButtonLoadingIndicator(),
+                    SizedBox(height: 20),
+                    Text(
+                      'Preparing QR Scanner...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (_isTextInputting)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                  ButtonLoadingIndicator(),
+                    SizedBox(height: 20),
+                    Text(
+                      'Processing Text Input...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           Positioned(
             top: 40.h,
             right: 8,
@@ -604,11 +1110,43 @@ class _NFCScreenState extends State<NFCScreen> {
           Gap(10.h),
           CustomToolTip(
             bottomMargin: 20,
+            message: 'Enter Text ID',
+            child: FloatingActionButton(
+              heroTag: 'textButton',
+              backgroundColor: ColorManager.green,
+              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : () {
+                setState(() {
+                  _isTextInputting = true;
+                });
+                _showTextInputDialog();
+              },
+              child: const Icon(Icons.keyboard, color: ColorManager.white),
+            ),
+          ),
+          Gap(10.h),
+          CustomToolTip(
+            bottomMargin: 20,
+            message: 'Scan QR Code',
+            child: FloatingActionButton(
+              heroTag: 'qrButton',
+              backgroundColor: ColorManager.green,
+              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : () {
+                setState(() {
+                  _isQrScanning = true;
+                });
+                _showQRScanner();
+              },
+              child: const Icon(Icons.qr_code_scanner, color: ColorManager.white),
+            ),
+          ),
+          Gap(10.h),
+          CustomToolTip(
+            bottomMargin: 20,
             message: 'Scan NFC',
             child: FloatingActionButton(
               heroTag: 'nfcButton',
               backgroundColor: ColorManager.green,
-              onPressed: _isScanning ? null : _scanNFC,
+              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : _scanNFC,
               child: const Icon(Icons.nfc, color: ColorManager.white),
             ),
           ),

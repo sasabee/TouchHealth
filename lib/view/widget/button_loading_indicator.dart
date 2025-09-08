@@ -18,7 +18,7 @@ class ButtonLoadingIndicator extends StatelessWidget {
       height: radius ?? 20.w,
       width: radius ?? 20.w,
       child: CircularProgressIndicator(
-        color: color ?? ColorManager.white,
+        color: color ?? ColorManager.green,
         strokeCap: StrokeCap.round,
         strokeWidth: 2.5,
       ),

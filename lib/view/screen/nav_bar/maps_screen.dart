@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:developer' as log;
 import 'dart:math';
-import 'package:dr_ai/core/utils/constant/image.dart';
-import 'package:dr_ai/core/utils/theme/color.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/core/utils/helper/location.dart';
-import 'package:dr_ai/data/model/place_directions.dart';
-import 'package:dr_ai/data/model/place_location.dart';
-import 'package:dr_ai/controller/validation/formvalidation_cubit.dart';
-import 'package:dr_ai/controller/permissions/permissions_cubit.dart';
-import 'package:dr_ai/view/widget/button_loading_indicator.dart';
-import 'package:dr_ai/view/widget/custom_button.dart';
-import 'package:dr_ai/view/widget/custom_tooltip.dart';
-import 'package:dr_ai/view/widget/directions_details_card.dart';
-import 'package:dr_ai/view/widget/floating_search_bar.dart';
-import 'package:dr_ai/view/widget/locker_widget.dart';
+import 'package:touchhealth/core/utils/constant/image.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/location.dart';
+import 'package:touchhealth/data/model/place_directions.dart';
+import 'package:touchhealth/data/model/place_location.dart';
+import 'package:touchhealth/controller/validation/formvalidation_cubit.dart';
+import 'package:touchhealth/controller/permissions/permissions_cubit.dart';
+import 'package:touchhealth/view/widget/button_loading_indicator.dart';
+import 'package:touchhealth/view/widget/custom_button.dart';
+import 'package:touchhealth/view/widget/custom_tooltip.dart';
+import 'package:touchhealth/view/widget/directions_details_card.dart';
+import 'package:touchhealth/view/widget/floating_search_bar.dart';
+import 'package:touchhealth/view/widget/locker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,7 +40,7 @@ class _MapScreenState extends State<MapScreen> {
     _scaffoldKey = GlobalKey<ScaffoldState>();
     _getCurrentLocation();
 
-    _checkMapLockStatus();
+    // _checkMapLockStatus(); // Disabled map lock
   }
 
   void _checkMapLockStatus() =>
@@ -83,7 +83,10 @@ class _MapScreenState extends State<MapScreen> {
 
   static CameraPosition get _myCurrrentPositionCameraPosition => CameraPosition(
       bearing: 0,
-      target: LatLng(_locationData!.latitude!, _locationData!.longitude!),
+      target: LatLng(
+        _locationData?.latitude ?? 37.7749, // Default to San Francisco
+        _locationData?.longitude ?? -122.4194
+      ),
       tilt: 0.0,
       zoom: 17);
 
@@ -130,30 +133,26 @@ class _MapScreenState extends State<MapScreen> {
           setState(() {});
         }
       },
-      child: LockerWidget(
-        isLocked: _isScreenLocked,
-        svgIconPath: ImageManager.splashLogo,
-        message: _message,
-        child: Scaffold(
-          key: _scaffoldKey,
-          drawerScrimColor: ColorManager.black.withOpacity(0.4),
-          drawer: _buildDrawer(),
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: false,
-          body: Stack(
-            children: [
-              _locationData != null ? _buildMap() : _buildLoadingIndicator(),
-              _buildSelectedPlaceLocation(),
-              _isSearchedPlaceMarkerClicked && _placeDirections != null
-                  ? DistanceAndTime(
-                      isTimeAndDistanceVisible: _isTimeAndDistanceVisible,
-                      placeDirections: _placeDirections)
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawerScrimColor: ColorManager.black.withOpacity(0.4),
+        drawer: _buildDrawer(),
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          children: [
+            _locationData != null ? _buildMap() : _buildLoadingIndicator(),
+            _buildSelectedPlaceLocation(),
+            _isSearchedPlaceMarkerClicked && _placeDirections != null
+                ? DistanceAndTime(
+                    isTimeAndDistanceVisible: _isTimeAndDistanceVisible,
+                    placeDirections: _placeDirections)
                   : Container(),
               _buildPlaceDirections(),
               const MyFloatingSearchBar(),
-            ],
-          ),
-          floatingActionButton: Column(
+          ],
+        ),
+        floatingActionButton: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_isTimeAndDistanceVisible)
@@ -193,8 +192,7 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   void _buildCameraNewPosition() {
@@ -583,7 +581,7 @@ class _MapScreenState extends State<MapScreen> {
                                               "${_hospitalList[index]?.internationalPhoneNumber}",
                                               style: context.textTheme.bodySmall
                                                   ?.copyWith(
-                                                      color: Colors.green,
+                                                      color: Colors.pink,
                                                       fontWeight:
                                                           FontWeight.w600),
                                             ),
@@ -674,7 +672,7 @@ class _MapScreenState extends State<MapScreen> {
                       //                       style: context
                       //                           .textTheme.bodyMedium
                       //                           ?.copyWith(
-                      //                               color: Colors.green),
+                      //                               color: Colors.pink),
                       //                     ),
                       //                   ],
                       //                 ),

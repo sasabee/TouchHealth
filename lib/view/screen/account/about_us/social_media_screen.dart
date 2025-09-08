@@ -98,7 +98,7 @@ class SocialMediaScreen extends StatelessWidget {
                     _buildSocialMediaItem(
                       context: context,
                       title: "LinkedIn",
-                      subtitle: "Dr. AI Medical Solutions",
+                      subtitle: "TouchHealth Medical Solutions",
                       iconUrl:
                           "https://cdn-icons-png.flaticon.com/512/174/174857.png",
                       onTap: () => _openPlatformLink(context,

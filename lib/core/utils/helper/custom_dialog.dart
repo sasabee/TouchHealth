@@ -1,7 +1,7 @@
-import 'package:dr_ai/core/utils/theme/color.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/view/widget/button_loading_indicator.dart';
-import 'package:dr_ai/view/widget/custom_button.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/view/widget/button_loading_indicator.dart';
+import 'package:touchhealth/view/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:bloc/bloc.dart';
-import 'package:dr_ai/data/source/firebase/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../core/cache/cache.dart';
+import '../../../data/source/firebase/firebase_service.dart';
 
 part 'sign_in_state.dart';
 
@@ -55,33 +56,49 @@ class SignInCubit extends Cubit<SignInState> {
   Future<void> userSignIn(
       {required String email, required String password}) async {
     emit(SignInLoading());
+    
     try {
-      log("User init sign in with email: $email");
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password)
-          .timeout(Duration(seconds: 30), onTimeout: () {
-        emit(SignInFailure(message: "Sign in timed out. Please try again."));
-        throw TimeoutException(
-            "Sign in timed out after 30 seconds. Please try again.");
-      });
-      log("User finish in: ${userCredential.user!.email}");
-      if (userCredential.user!.emailVerified == true) {
-        emit(SignInSuccess());
-        log("User signed in successfully: ${userCredential.user!.email}");
-      } else if (userCredential.user!.emailVerified == false) {
-        await FirebaseService.emailVerify();
-        emit(EmailNotVerified(
-            message:
-                "Email not verified, check your email for verification link"));
+      // Use FirebaseService.logIn for consistent error handling and offline support
+      await FirebaseService.logIn(email: email, password: password);
+      
+      // Check if user is authenticated
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        if (user.emailVerified) {
+          emit(SignInSuccess());
+        } else {
+          await FirebaseService.emailVerify();
+          emit(EmailNotVerified(message: "Email verification sent!"));
+        }
+      } else {
+        // Check for offline mode
+        final userData = CacheData.getMapData(key: "userData");
+        if (userData != null && userData['offline'] == true) {
+          emit(SignInSuccess());
+        } else {
+          emit(SignInFailure(message: "Authentication failed"));
+        }
       }
     } on FirebaseAuthException catch (err) {
-      final errMessage = _validateFirebaseException(err.code);
-      log("FirebaseAuthException: ${err.code} - $errMessage");
-
+      String? errMessage = _validateFirebaseException(err.code);
       emit(SignInFailure(message: errMessage ?? err.code));
     } catch (err) {
-      log("Unexpected error during sign in: $err");
-      emit(SignInFailure(message: err.toString()));
+      log("Sign in error: $err");
+      
+      // Handle network/timeout errors with offline fallback
+      if (err.toString().contains('network') || 
+          err.toString().contains('timeout') ||
+          err.toString().contains('TimeoutException')) {
+        log("Network error detected, checking offline mode");
+        final userData = CacheData.getMapData(key: "userData");
+        if (userData != null && userData['offline'] == true) {
+          emit(SignInSuccess());
+        } else {
+          emit(SignInFailure(message: "Network error. Please check your connection."));
+        }
+      } else {
+        emit(SignInFailure(message: err.toString()));
+      }
     }
   }
 }

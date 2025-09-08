@@ -13,8 +13,16 @@ class MedicalTipsCubit extends Cubit<MedicalTipsState> {
   Future<void> fetchDailyTip() async {
     try {
       emit(MedicalTipsLoading());
-      final medicalTip = await _medicalTipsService.getDailyTip();
-      emit(MedicalTipsLoaded(medicalTip));
+      // Use fallback medical tip instead of API call
+      final fallbackTip = MedicalTip(
+        id: 1,
+        title: "Medical Tips",
+        content: "Practice good general hygiene, such as frequent handwashing to prevent illness",
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        isActive: true,
+      );
+      emit(MedicalTipsLoaded(fallbackTip));
     } catch (e) {
       emit(MedicalTipsError(e.toString()));
     }

@@ -1,6 +1,6 @@
-import 'package:dr_ai/core/utils/theme/color.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/controller/validation/formvalidation_cubit.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/controller/validation/formvalidation_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formatted_text/formatted_text.dart';

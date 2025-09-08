@@ -1,42 +1,42 @@
 {
   "project_info": {
-    "project_number": "473927393143",
-    "firebase_url": "https://dr-ai-e14d1-default-rtdb.firebaseio.com",
-    "project_id": "dr-ai-e14d1",
-    "storage_bucket": "dr-ai-e14d1.appspot.com"
+    "project_number": "282607814954",
+    "project_id": "touchhealth-app",
+    "storage_bucket": "touchhealth-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:473927393143:android:ee63ca9253b44cd5534b72",
+        "mobilesdk_app_id": "1:282607814954:android:bbd26aa0dd4d958e25b653",
         "android_client_info": {
-          "package_name": "com.example.dr_ai"
+          "package_name": "com.example.touch_health"
         }
       },
       "oauth_client": [
         {
-          "client_id": "473927393143-4a36efa15i3l4ap4mdhui6lh3u6vu65p.apps.googleusercontent.com",
+          "client_id": "282607814954-svmklbg57d2aapqf4b7qf15mno40nnn4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.touch_health",
+            "certificate_hash": "79d3487174ba7c24bf01d596a055b01a495f2d65"
+          }
+        },
+        {
+          "client_id": "282607814954-fpo80r68j1pv0cqjkmjr9f99ja45jcha.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBeoCC8wUy2hrY8H4Ioim2t9x5coPMe9JY"
+          "current_key": "AIzaSyC9L4Lt11E1yCpShLp9Sl8yAqRQ6298Y1U"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "473927393143-4a36efa15i3l4ap4mdhui6lh3u6vu65p.apps.googleusercontent.com",
+              "client_id": "282607814954-fpo80r68j1pv0cqjkmjr9f99ja45jcha.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "473927393143-cs8ntgs7m0d6h05rj41bief3vjqs5uen.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.drAi.RunnerTests"
-              }
             }
           ]
         }

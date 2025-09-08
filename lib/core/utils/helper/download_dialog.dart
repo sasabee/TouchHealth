@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dr_ai/core/utils/theme/color.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
 import 'package:gap/gap.dart';
 
 class DownloadDialog extends StatelessWidget {

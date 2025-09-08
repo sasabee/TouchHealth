@@ -1,6 +1,6 @@
 
 import 'package:bloc/bloc.dart';
-import 'package:dr_ai/data/source/firebase/firebase_service.dart';
+import 'package:touchhealth/data/source/firebase/firebase_service.dart';
 import 'package:equatable/equatable.dart';
 
 part 'permissions_state.dart';

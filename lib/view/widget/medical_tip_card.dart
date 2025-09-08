@@ -1,4 +1,4 @@
-import 'package:dr_ai/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,7 +26,7 @@ class _MedicalTipCardState extends State<MedicalTipCard> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: TextDirection.ltr,
       child: BlocBuilder<MedicalTipsCubit, MedicalTipsState>(
         builder: (context, state) {
           return _buildCard(state);
@@ -66,8 +66,8 @@ class _MedicalTipCardState extends State<MedicalTipCard> {
           highlightColor: ColorManager.grey.withOpacity(0.4),
         ),
         child: _buildTipContent(
-          title: "عنوان النصيحة الطبية",
-          content: "هذا هو محتوى النصيحة الطبية التي سيتم عرضها للمستخدم. النصيحة الطبية تحتوي على معلومات مهمة للحفاظ على صحتك.",
+          title: "Medical Tips",
+          content: "Practice good general hygiene, such as frequent handwashing to prevent illness",
         ),
       );
     } else if (state is MedicalTipsError) {
@@ -78,7 +78,7 @@ class _MedicalTipCardState extends State<MedicalTipCard> {
           _buildHeader("Medical Tips"),
           const Gap(8),
           Text(
-            "فشل في تحميل النصيحة الطبية. الرجاء المحاولة مرة أخرى لاحقًا.",
+            "Failed to load medical tip. Please try again later.",
             style: context.textTheme.bodySmall?.copyWith(color: ColorManager.black),
           ),
         ],
@@ -91,7 +91,7 @@ class _MedicalTipCardState extends State<MedicalTipCard> {
     } else {
       return _buildTipContent(
         title: "Medical Tips",
-        content: "ابق على اطلاع بأحدث النصائح الطبية والمشورة الصحية للحفاظ على نمط حياة صحي.",
+        content: "Practice good general hygiene, such as frequent handwashing to prevent illness",
       );
     }
   }

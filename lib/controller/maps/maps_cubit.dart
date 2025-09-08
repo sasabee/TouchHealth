@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:dr_ai/data/model/place_directions.dart';
-import 'package:dr_ai/data/model/place_location.dart';
-import 'package:dr_ai/data/model/place_suggetion.dart';
-import 'package:dr_ai/data/source/remote/maps_place.dart';
+import 'package:touchhealth/data/model/place_directions.dart';
+import 'package:touchhealth/data/model/place_location.dart';
+import 'package:touchhealth/data/model/place_suggetion.dart';
+import 'package:touchhealth/data/source/remote/maps_place.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';

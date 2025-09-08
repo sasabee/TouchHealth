@@ -1,9 +1,9 @@
-import 'package:dr_ai/core/utils/constant/image.dart';
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/core/utils/helper/scaffold_snakbar.dart';
-import 'package:dr_ai/controller/auth/log_out/log_out_cubit.dart';
-import 'package:dr_ai/view/widget/loading_indicator.dart';
+import 'package:touchhealth/core/utils/constant/image.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/scaffold_snakbar.dart';
+import 'package:touchhealth/controller/auth/log_out/log_out_cubit.dart';
+import 'package:touchhealth/view/widget/loading_indicator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/utils/theme/color.dart';
 import '../../controller/chat/chat_cubit.dart';
+import '../../data/source/firebase/firebase_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,6 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       () {
         context.bloc<ChatCubit>().initHive();
+        
         Navigator.pushReplacementNamed(
             context,
             (FirebaseAuth.instance.currentUser != null &&
@@ -61,8 +63,8 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               SvgPicture.asset(
                 ImageManager.splashLogo,
-                width: context.width / 3,
-                height: context.width / 3,
+                width: context.width / 2.2,
+                height: context.width / 2.2,
               ),
               const BuidSplashLoadingIndicator(),
             ],

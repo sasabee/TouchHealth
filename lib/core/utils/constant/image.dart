@@ -29,7 +29,7 @@
  class ImageManager {
   ImageManager._();
   //? SVG
-  static const String splashLogo = "assets/images/logo_dr_ai.svg";
+  static const String splashLogo = "assets/images/20250906_0828_Pink Health Logo_simple_compose_01k4evaw5rfee8p34sswc71wr7.svg";
   static const String googleIcon = "assets/images/google_icon.svg";
   static const String facebookIcon = "assets/images/facebook_icon.svg";
   static const String appleIcon = "assets/images/apple_icon.svg";

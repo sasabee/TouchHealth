@@ -1,8 +1,8 @@
-import 'package:dr_ai/core/utils/constant/image.dart';
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/view/widget/custom_button.dart';
-import 'package:dr_ai/view/widget/medical_tip_card.dart';
+import 'package:touchhealth/core/utils/constant/image.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/view/widget/custom_button.dart';
+import 'package:touchhealth/view/widget/medical_tip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,6 +25,15 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               Gap(32.h),
+              // Logo outside and above the chat card
+              Center(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 100.h,
+                  width: 100.w,
+                ),
+              ),
+              Gap(20.h),
               _buildChatCard(context),
               Gap(32.h),
               BlocProvider(
@@ -58,7 +67,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Chat in Doctor AI",
+                  Text("Quize our AI doctor",
                       style: context.textTheme.displayLarge?.copyWith(
                         fontSize: 16.sp,
                       )),
@@ -100,20 +109,8 @@ class HomeScreen extends StatelessWidget {
         ContactCard(
           image: ImageManager.ambulanceIcon,
           title: "Ambulance",
-          number: "123",
+          number: "10177",
           color: ColorManager.green,
-        ),
-        ContactCard(
-          image: ImageManager.policeIcon,
-          title: "Emergency",
-          number: "112",
-          color: ColorManager.darkBlue,
-        ),
-        ContactCard(
-          image: ImageManager.firefightingIcon,
-          title: "Firefighting",
-          number: "180",
-          color: ColorManager.orange,
         ),
       ],
     );

@@ -1,7 +1,7 @@
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/error_screen.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/view/widget/custom_scrollable_appbar.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/error_screen.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/view/widget/custom_scrollable_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';

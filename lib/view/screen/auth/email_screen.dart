@@ -1,11 +1,11 @@
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/controller/auth/sign_up/sign_up_cubit.dart';
-import 'package:dr_ai/controller/validation/formvalidation_cubit.dart';
-import 'package:dr_ai/view/widget/button_loading_indicator.dart';
-import 'package:dr_ai/view/widget/custom_button.dart';
-import 'package:dr_ai/view/widget/custom_sign_up_button.dart';
-import 'package:dr_ai/view/widget/custom_text_field.dart';
-import 'package:dr_ai/view/widget/custom_text_span.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/controller/auth/sign_up/sign_up_cubit.dart';
+import 'package:touchhealth/controller/validation/formvalidation_cubit.dart';
+import 'package:touchhealth/view/widget/button_loading_indicator.dart';
+import 'package:touchhealth/view/widget/custom_button.dart';
+import 'package:touchhealth/view/widget/custom_sign_up_button.dart';
+import 'package:touchhealth/view/widget/custom_text_field.dart';
+import 'package:touchhealth/view/widget/custom_text_span.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,7 +47,7 @@ class _EmailScreenState extends State<EmailScreen> {
               Gap(context.height * 0.032),
               CustomTextSpan(
                   textOne: "Welcome to ",
-                  textTwo: "Doctor AI",
+                  textTwo: "Touch Health",
                   fontSize: 24.spMin),
               Gap(8.h),
               Text(

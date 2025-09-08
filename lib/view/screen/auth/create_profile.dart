@@ -1,9 +1,9 @@
-import 'package:dr_ai/core/utils/helper/scaffold_snakbar.dart';
-import 'package:dr_ai/controller/auth/sign_up/sign_up_cubit.dart';
-import 'package:dr_ai/controller/validation/formvalidation_cubit.dart';
-import 'package:dr_ai/view/widget/button_loading_indicator.dart';
+import 'package:touchhealth/core/utils/helper/scaffold_snakbar.dart';
+import 'package:touchhealth/controller/auth/sign_up/sign_up_cubit.dart';
+import 'package:touchhealth/controller/validation/formvalidation_cubit.dart';
+import 'package:touchhealth/view/widget/button_loading_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

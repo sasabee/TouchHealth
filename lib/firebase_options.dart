@@ -44,38 +44,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCfa6pvzQ98cpME1HhoRlxAh9e3tQx9KnM',
-    appId: '1:473927393143:web:4706671fffadedfe534b72',
-    messagingSenderId: '473927393143',
-    projectId: 'dr-ai-e14d1',
-    authDomain: 'dr-ai-e14d1.firebaseapp.com',
-    storageBucket: 'dr-ai-e14d1.appspot.com',
-    measurementId: 'G-H78GBTFH8B',
+    apiKey: 'AIzaSyC9L4Lt11E1yCpShLp9Sl8yAqRQ6298Y1U',
+    appId: '1:282607814954:web:bbd26aa0dd4d958e25b653',
+    messagingSenderId: '282607814954',
+    projectId: 'touchhealth-app',
+    authDomain: 'touchhealth-app.firebaseapp.com',
+    storageBucket: 'touchhealth-app.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBeoCC8wUy2hrY8H4Ioim2t9x5coPMe9JY',
-    appId: '1:473927393143:android:ee63ca9253b44cd5534b72',
-    messagingSenderId: '473927393143',
-    projectId: 'dr-ai-e14d1',
-    storageBucket: 'dr-ai-e14d1.appspot.com',
+    apiKey: 'AIzaSyC9L4Lt11E1yCpShLp9Sl8yAqRQ6298Y1U',
+    appId: '1:282607814954:android:bbd26aa0dd4d958e25b653',
+    messagingSenderId: '282607814954',
+    projectId: 'touchhealth-app',
+    storageBucket: 'touchhealth-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBzpVQJCExBqE8sVOE9j4JohssxugZgFyg',
-    appId: '1:473927393143:ios:60725f9ed6d68ec2534b72',
-    messagingSenderId: '473927393143',
-    projectId: 'dr-ai-e14d1',
-    storageBucket: 'dr-ai-e14d1.appspot.com',
-    iosBundleId: 'com.example.drAi',
+    apiKey: 'AIzaSyC9L4Lt11E1yCpShLp9Sl8yAqRQ6298Y1U',
+    appId: '1:282607814954:ios:bbd26aa0dd4d958e25b653',
+    messagingSenderId: '282607814954',
+    projectId: 'touchhealth-app',
+    storageBucket: 'touchhealth-app.firebasestorage.app',
+    iosBundleId: 'com.example.touch_health',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBzpVQJCExBqE8sVOE9j4JohssxugZgFyg',
-    appId: '1:473927393143:ios:48faab1f42f933ac534b72',
-    messagingSenderId: '473927393143',
-    projectId: 'dr-ai-e14d1',
-    storageBucket: 'dr-ai-e14d1.appspot.com',
-    iosBundleId: 'com.example.drAi.RunnerTests',
+    apiKey: 'AIzaSyC9L4Lt11E1yCpShLp9Sl8yAqRQ6298Y1U',
+    appId: '1:282607814954:ios:bbd26aa0dd4d958e25b653',
+    messagingSenderId: '282607814954',
+    projectId: 'touchhealth-app',
+    storageBucket: 'touchhealth-app.firebasestorage.app',
+    iosBundleId: 'com.example.touch_health.RunnerTests',
   );
 }

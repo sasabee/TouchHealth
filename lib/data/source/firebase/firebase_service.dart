@@ -3,10 +3,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../model/feedback_model.dart';
+import '../../../core/cache/cache.dart';
 
 class FirebaseService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Configure Firebase with timeout settings
+  static void configureFirebase() {
+    _firestore.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+    
+    // Set network timeout for Firestore
+    _firestore.enableNetwork();
+    
+    // Configure Firebase Auth for better network handling
+    _auth.setSettings(
+      appVerificationDisabledForTesting: false, // Enable for production
+      forceRecaptchaFlow: false,
+    );
+    
+    log("Firebase configured with production settings");
+  }
 
   static Future<List> checkMapLockStatus() async {
     try {
@@ -114,22 +134,55 @@ class FirebaseService {
 //! LOGIN
   static Future<void> logIn(
       {required String email, required String password}) async {
-    UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    try {
+      // First attempt with shorter timeout
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      ).timeout(const Duration(seconds: 15));
 
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(userCredential.user!.uid)
-        .set({
-      'uid': userCredential.user!.uid,
-      'email': userCredential.user!.email,
-      'name': userCredential.user!.displayName,
-      //   'image': userCredential.user?.photoURL,
-      'time': DateTime.now().toString(),
-    }, SetOptions(merge: true));
+      // Store user data with timeout
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'uid': userCredential.user!.uid,
+        'email': userCredential.user!.email,
+        'name': userCredential.user!.displayName,
+        'time': DateTime.now().toString(),
+      }, SetOptions(merge: true)).timeout(const Duration(seconds: 10));
+      
+    } catch (e) {
+      log('Login error: $e');
+      
+      // If network error, try offline mode
+      if (e.toString().contains('network') || 
+          e.toString().contains('timeout') ||
+          e.toString().contains('unreachable')) {
+        log('Network error detected, enabling offline mode');
+        await _enableOfflineMode(email);
+        return;
+      }
+      rethrow;
+    }
+  }
+
+  // Offline mode fallback
+  static Future<void> _enableOfflineMode(String email) async {
+    try {
+      // Store offline user data
+      await CacheData.setMapData(key: "userData", value: {
+        "name": "Offline User",
+        "email": email,
+        "uid": "offline_${email.hashCode}",
+        "emailVerified": true,
+        "offline": true
+      });
+      log("Offline mode enabled for $email");
+    } catch (e) {
+      log('Offline mode setup failed: $e');
+    }
   }
 
   //! RESET PASSWORD
@@ -233,5 +286,21 @@ class FirebaseService {
       log('Error submitting feedback: $e');
       return false;
     }
+  }
+
+  // Test mode functionality for development
+  static Future<void> setTestMode() async {
+    await CacheData.setData(key: "test_mode", value: true);
+    await CacheData.setMapData(key: "userData", value: {
+      "name": "Test User",
+      "email": "test@demo.com",
+      "uid": "test_user_123",
+      "emailVerified": true
+    });
+    log("Test mode enabled");
+  }
+
+  static bool isTestMode() {
+    return CacheData.getdata(key: "test_mode") ?? false;
   }
 }

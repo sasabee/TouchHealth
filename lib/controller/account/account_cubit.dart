@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dr_ai/core/cache/cache.dart';
-import 'package:dr_ai/data/model/user_data_model.dart';
+import 'package:touchhealth/core/cache/cache.dart';
+import 'package:touchhealth/data/model/user_data_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 
@@ -16,18 +16,63 @@ class AccountCubit extends Cubit<AccountState> {
   Future<void> getprofileData() async {
     emit(AccountLoading());
     try {
+      // Check if user is authenticated
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        // Create demo user data for unauthenticated users
+        final demoUserData = UserDataModel(
+          uid: 'demo_user',
+          name: 'Demo User',
+          email: 'demo@example.com',
+          phoneNumber: '',
+          dob: '',
+          gender: '',
+          bloodType: '',
+          height: '',
+          weight: '',
+          chronicDiseases: '',
+          familyHistoryOfChronicDiseases: '',
+        );
+        await CacheData.setData(key: "name", value: demoUserData.name);
+        await CacheData.setMapData(key: "userData", value: demoUserData.toJson());
+        emit(AccountSuccess(userDataModel: demoUserData));
+        return;
+      }
+
       UserDataModel? userDataModel;
       _firestore
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(currentUser.uid)
           .snapshots()
           .listen((event) {
-        userDataModel = UserDataModel.fromJson(event.data()!);
-        CacheData.setData(key: "name", value: userDataModel!.name);
-        CacheData.setMapData(key: "userData", value: userDataModel!.toJson());
-        emit(AccountSuccess(userDataModel: userDataModel!));
+        if (event.exists && event.data() != null) {
+          userDataModel = UserDataModel.fromJson(event.data()!);
+          CacheData.setData(key: "name", value: userDataModel!.name);
+          CacheData.setMapData(key: "userData", value: userDataModel!.toJson());
+          emit(AccountSuccess(userDataModel: userDataModel!));
+        } else {
+          // Create fallback user data if document doesn't exist
+          final fallbackUserData = UserDataModel(
+            uid: currentUser.uid,
+            name: currentUser.displayName ?? 'User',
+            email: currentUser.email ?? 'user@example.com',
+            phoneNumber: '',
+            dob: '',
+            gender: '',
+            bloodType: '',
+            height: '',
+            weight: '',
+            chronicDiseases: '',
+            familyHistoryOfChronicDiseases: '',
+          );
+          CacheData.setData(key: "name", value: fallbackUserData.name);
+          CacheData.setMapData(key: "userData", value: fallbackUserData.toJson());
+          emit(AccountSuccess(userDataModel: fallbackUserData));
+        }
       });
     } on FirebaseException catch (err) {
+      emit(AccountFailure(message: err.toString()));
+    } catch (err) {
       emit(AccountFailure(message: err.toString()));
     }
   }

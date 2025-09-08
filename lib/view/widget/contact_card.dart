@@ -1,5 +1,5 @@
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/controller/launch_uri/launch_uri_cubit.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/controller/launch_uri/launch_uri_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';

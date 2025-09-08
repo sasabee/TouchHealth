@@ -1,13 +1,14 @@
 import 'dart:developer';
 
-import 'package:dr_ai/core/utils/theme/color.dart';
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/core/utils/helper/scaffold_snakbar.dart';
-import 'package:dr_ai/controller/auth/sign_in/sign_in_cubit.dart';
-import 'package:dr_ai/view/screen/auth/forget_password.dart';
-import 'package:dr_ai/view/widget/custom_button.dart';
-import 'package:dr_ai/view/widget/custom_text_field.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/core/utils/helper/scaffold_snakbar.dart';
+import 'package:touchhealth/controller/auth/sign_in/sign_in_cubit.dart';
+import 'package:touchhealth/view/screen/auth/forget_password.dart';
+import 'package:touchhealth/view/widget/custom_button.dart';
+import 'package:touchhealth/view/widget/custom_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,6 +41,42 @@ class _LoginScreenState extends State<LoginScreen> {
     log("on pressed");
   }
 
+  void _showEmailVerificationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Email Verification Required'),
+          content: Text(
+            'Please check your email and click the verification link. After verifying, try logging in again.\n\nDidn\'t receive the email?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+                  customSnackBar(context, 
+                    'Verification email sent again! Check your inbox.', 
+                    ColorManager.green, 5);
+                } catch (e) {
+                  customSnackBar(context, 
+                    'Failed to send verification email. Try again later.', 
+                    ColorManager.error, 5);
+                }
+              },
+              child: Text('Resend Email'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               children: [
                 Gap(context.height / 7),
-                const CustomTextSpan(textOne: "Welcome ", textTwo: "back"),
+                const CustomTextSpan(textOne: "Touch in.", textTwo: "Feel better."),
                 Gap(8.h),
                 Text(
                   "Please enter your email & password to access your account.",
@@ -90,7 +127,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       _isLoading = false;
                       FocusScope.of(context).unfocus();
                       customSnackBar(
-                          context, state.message, ColorManager.error, 5);
+                          context, state.message, ColorManager.green, 8);
+                      // Show dialog with resend option
+                      _showEmailVerificationDialog(context);
                     }
                     if (state is SignInFailure) {
                       FocusScope.of(context).unfocus();

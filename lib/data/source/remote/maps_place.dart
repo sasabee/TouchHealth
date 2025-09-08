@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:dr_ai/core/utils/constant/api_url.dart';
+import 'package:touchhealth/core/utils/constant/api_url.dart';
 import 'dart:developer';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';

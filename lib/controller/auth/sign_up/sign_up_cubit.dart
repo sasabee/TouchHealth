@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dr_ai/data/source/firebase/firebase_service.dart';
+import 'package:touchhealth/data/source/firebase/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 part 'sign_up_state.dart';

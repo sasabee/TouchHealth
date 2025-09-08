@@ -1,11 +1,11 @@
-import 'package:dr_ai/core/cache/cache.dart';
-import 'package:dr_ai/core/utils/theme/color.dart';
-import 'package:dr_ai/core/utils/constant/image.dart';
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/custom_dialog.dart';
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/data/model/user_data_model.dart';
-import 'package:dr_ai/controller/account/account_cubit.dart';
+import 'package:touchhealth/core/cache/cache.dart';
+import 'package:touchhealth/core/utils/theme/color.dart';
+import 'package:touchhealth/core/utils/constant/image.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/custom_dialog.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/data/model/user_data_model.dart';
+import 'package:touchhealth/controller/account/account_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,9 +50,18 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 children: [
                   Gap(15.h),
+                  // TouchHealth Logo
+                  SvgPicture.asset(
+                    ImageManager.splashLogo,
+                    height: 80.h,
+                    width: 80.w,
+                  ),
+                  Gap(20.h),
                   _buildUserCard(
                     context,
-                    char: _userData?.name[0].toUpperCase() ?? "",
+                    char: (_userData?.name != null && _userData!.name.isNotEmpty) 
+                        ? _userData!.name[0].toUpperCase() 
+                        : "",
                     email: _userData?.email ?? "",
                     name: _userData?.name ?? "",
                   ),

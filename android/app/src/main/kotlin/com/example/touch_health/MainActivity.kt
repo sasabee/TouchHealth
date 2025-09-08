@@ -1,4 +1,4 @@
-package com.example.dr_ai
+package com.example.touch_health
 
 import io.flutter.embedding.android.FlutterActivity
 

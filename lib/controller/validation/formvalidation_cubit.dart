@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' hide TextDirection;
-import 'package:intl/intl.dart ' hide TextDirection;
+import 'package:intl/intl.dart' hide TextDirection;
 
 part 'formvalidation_state.dart';
 

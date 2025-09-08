@@ -1,6 +1,6 @@
-import 'package:dr_ai/core/utils/helper/extention.dart';
-import 'package:dr_ai/data/model/place_suggetion.dart';
-import 'package:dr_ai/controller/maps/maps_cubit.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
+import 'package:touchhealth/data/model/place_suggetion.dart';
+import 'package:touchhealth/controller/maps/maps_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

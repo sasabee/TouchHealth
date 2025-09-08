@@ -1,11 +1,11 @@
 import 'dart:developer';
-import 'package:dr_ai/core/router/routes.dart';
-import 'package:dr_ai/core/utils/helper/scaffold_snakbar.dart';
+import 'package:touchhealth/core/router/routes.dart';
+import 'package:touchhealth/core/utils/helper/scaffold_snakbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:dr_ai/controller/chat/chat_cubit.dart';
-import 'package:dr_ai/data/source/local/chat_message_model.dart';
+import 'package:touchhealth/controller/chat/chat_cubit.dart';
+import 'package:touchhealth/data/source/local/chat_message_model.dart';
 import 'package:gap/gap.dart';
 import '../../../controller/validation/formvalidation_cubit.dart';
 import '../../widget/chat_bubble.dart';
@@ -131,7 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Doctor AI Chat"),
+            title: const Text("Touch Health Chat"),
             shape: context.appBarTheme.shape,
             actions: [
               _buildPopupMenuButton(),
@@ -174,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
           height: 25.w,
           child: const CircularProgressIndicator(
             strokeCap: StrokeCap.round,
-            color: ColorManager.white,
+            color: ColorManager.green,
           ),
         ),
       ),
@@ -194,7 +194,7 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorManager.green,
           ),
           Gap(16.h),
-          Text("Start Chatting With Dr. AI",
+          Text("Start Chatting With TouchHealth",
               style: context.textTheme.bodyMedium),
         ],
       ),
