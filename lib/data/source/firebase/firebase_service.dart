@@ -61,10 +61,8 @@ class FirebaseService {
     required String dob,
     required String gender,
     required String bloodType,
-    required String height,
-    required String weight,
-    required String chronicDiseases,
-    required String familyHistoryOfChronicDiseases,
+    required String saId,
+    required String medicalRecordNumber,
   }) async {
     Map<String, dynamic> userData = {
       'isActive': true,
@@ -76,10 +74,9 @@ class FirebaseService {
       'dob': dob,
       'gender': gender,
       'bloodType': bloodType,
-      'height': height,
-      'weight': weight,
-      'chronicDiseases': chronicDiseases,
-      'familyHistoryOfChronicDiseases': familyHistoryOfChronicDiseases,
+      'saId': saId,
+      'medicalRecordNumber': medicalRecordNumber,
+      'medicalRecordStatus': 'No medical records recorded yet',
     };
 
     await _firestore
@@ -99,7 +96,6 @@ class FirebaseService {
       password: password,
     );
     await FirebaseAuth.instance.currentUser!.updateDisplayName(displayName);
-    FirebaseService.emailVerify();
     FirebaseFirestore.instance
         .collection('users')
         .doc(userCredential.user!.uid)

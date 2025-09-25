@@ -97,6 +97,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   style:
                       context.textTheme.bodySmall?.copyWith(fontSize: 16.spMin),
                 ),
+                Gap(12.h),
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: ColorManager.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(color: ColorManager.green.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "🚀 Demo Login",
+                        style: context.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: ColorManager.green,
+                        ),
+                      ),
+                      Gap(4.h),
+                      Text(
+                        "Email: demo@touchhealth.com\nPassword: demo123",
+                        textAlign: TextAlign.center,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: ColorManager.green,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Gap(20.h),
                 Gap(20.h),
                 _buildEmailAndPasswordFields(),
                 Gap(12.h),
@@ -154,10 +184,39 @@ class _LoginScreenState extends State<LoginScreen> {
                   title: "Sign Up",
                   onTap: () => Navigator.pushNamed(context, RouteManager.email),
                 ),
-                Gap(32.h),
+                Gap(24.h),
                 // const CustomDivider(title: "Log in with"),
                 // Gap(16.h),
                 // const SocialLoginCard(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.medical_services, color: Colors.blue, size: 16.w),
+                    Gap(8.w),
+                    Text(
+                      "Healthcare Professional?",
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(8.h),
+                TextButton(
+                  onPressed: () => Navigator.pushNamed(context, RouteManager.practitionerLogin),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  ),
+                  child: Text(
+                    "Access Practitioner Portal",
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
                 Gap(16.h),
               ],
             ),

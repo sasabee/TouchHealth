@@ -30,9 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _dob;
   String? _gender;
   String? _bloodType;
-  String? _height;
-  String? _weight;
-  String? _chronicDiseases;
+  String? _saId;
   List<Item> genderList = const [
     Item("Male", Icons.male),
     Item("Female", Icons.female),
@@ -49,7 +47,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     Item('Unknown'),
   ];
 
-  String? _familyHistoryOfChronicDiseases;
   final Map<String, dynamic> _userData = CacheData.getMapData(key: "userData");
   bool _isloading = false;
 
@@ -61,11 +58,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _dob == _userData['dob'] &&
           _gender == _userData['gender'] &&
           _bloodType == _userData['bloodType'] &&
-          _height == _userData['height'] &&
-          _weight == _userData['weight'] &&
-          _chronicDiseases == _userData['chronicDiseases'] &&
-          _familyHistoryOfChronicDiseases ==
-              _userData['familyHistoryOfChronicDiseases']) {
+          _saId == _userData['saId']) {
         context.pop();
       } else {
         context
@@ -77,11 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               dob: _dob ?? _userData['dob'],
               gender: _gender ?? _userData['gender'],
               bloodType: _bloodType ?? _userData['bloodType'],
-              height: _height ?? _userData['height'],
-              weight: _weight ?? _userData['weight'],
-              chronicDiseases: _chronicDiseases ?? _userData['chronicDiseases'],
-              familyHistoryOfChronicDiseases: _familyHistoryOfChronicDiseases ??
-                  _userData['familyHistoryOfChronicDiseases'],
+              saId: _saId ?? _userData['saId'],
             )
             .then((_) => context.pop());
       }
@@ -252,56 +241,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               onSaved: (data) {
                 _bloodType = data!.name.toString();
               }),
-          Row(
-            children: [
-              Expanded(
-                child: CustomTextFormField(
-                  initialValue: userData['height'],
-                  keyboardType: TextInputType.number,
-                  title: "Height ( CM )",
-                  hintText: "Enter your height",
-                  onSaved: (data) {
-                    _height = data!;
-                  },
-                  validator: cubit.heightValidator,
-                ),
-              ),
-              Gap(18),
-              Expanded(
-                child: CustomTextFormField(
-                  initialValue: userData['weight'],
-                  keyboardType: TextInputType.number,
-                  title: "Weight ( KG )",
-                  hintText: "Enter your weight",
-                  onSaved: (data) {
-                    _weight = data!;
-                  },
-                  validator: cubit.weightValidator,
-                ),
-              ),
-            ],
-          ),
           CustomTextFormField(
-            maxLines: 4,
-            closeWhenTapOutside: true,
-            initialValue: userData['chronicDiseases'],
-            keyboardType: TextInputType.multiline,
-            title: "chronic diseases",
-            hintText: "Enter your chronic diseases",
+            keyboardType: TextInputType.number,
+            initialValue: userData['saId'],
+            title: "South African ID Number",
+            hintText: "Enter your SA ID (13 digits)",
             onSaved: (data) {
-              _chronicDiseases = data;
+              _saId = data;
             },
-          ),
-          CustomTextFormField(
-            maxLines: 4,
-            closeWhenTapOutside: true,
-            initialValue: userData['familyHistoryOfChronicDiseases'],
-            keyboardType: TextInputType.multiline,
-            title: "Family history of chronic diseases",
-            hintText: "Enter your Family history of chronic diseases",
-            onSaved: (data) {
-              _familyHistoryOfChronicDiseases = data;
-            },
+            validator: context.bloc<ValidationCubit>().validateSAId,
           ),
         ],
       ),

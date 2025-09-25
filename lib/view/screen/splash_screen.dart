@@ -11,7 +11,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/utils/theme/color.dart';
 import '../../controller/chat/chat_cubit.dart';
-import '../../data/source/firebase/firebase_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,14 +32,8 @@ class _SplashScreenState extends State<SplashScreen> {
         milliseconds: 1500,
       ),
       () {
-        context.bloc<ChatCubit>().initHive();
-        
-        Navigator.pushReplacementNamed(
-            context,
-            (FirebaseAuth.instance.currentUser != null &&
-                    FirebaseAuth.instance.currentUser!.emailVerified)
-                ? RouteManager.nav
-                : RouteManager.login);
+        // Always show login screen
+        Navigator.pushReplacementNamed(context, RouteManager.login);
       },
     );
   }

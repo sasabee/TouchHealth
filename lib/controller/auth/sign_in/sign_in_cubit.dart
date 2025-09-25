@@ -57,6 +57,23 @@ class SignInCubit extends Cubit<SignInState> {
       {required String email, required String password}) async {
     emit(SignInLoading());
     
+    // Demo login credentials for testing
+    if (email.toLowerCase() == 'demo@touchhealth.com' && password == 'demo123') {
+      log("Demo login detected - bypassing Firebase auth");
+      
+      // Set demo user data in cache
+      await CacheData.setMapData(key: "userData", value: {
+        'name': 'Demo User',
+        'email': 'demo@touchhealth.com',
+        'uid': 'demo_user_001',
+        'offline': true,
+        'demo': true,
+      });
+      
+      emit(SignInSuccess());
+      return;
+    }
+    
     try {
       // Use FirebaseService.logIn for consistent error handling and offline support
       await FirebaseService.logIn(email: email, password: password);

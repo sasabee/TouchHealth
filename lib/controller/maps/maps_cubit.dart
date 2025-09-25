@@ -6,6 +6,7 @@ import 'package:touchhealth/data/model/place_directions.dart';
 import 'package:touchhealth/data/model/place_location.dart';
 import 'package:touchhealth/data/model/place_suggetion.dart';
 import 'package:touchhealth/data/source/remote/maps_place.dart';
+import 'package:touchhealth/core/service/maps_dummy_data_service.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
@@ -106,18 +107,56 @@ class MapsCubit extends Cubit<MapsState> {
       _locationData ??= await _location.getLocation();
       log('Loading nearest hospitals...');
 
-      final List<FindHospitalsPlaceInfo> hospitalsData =
-          await FindHospitalWebService.getNearestHospital(
-              _locationData!.latitude!, _locationData!.longitude!, radius);
+      // Try to get real data first, fallback to dummy data if it fails
+      List<FindHospitalsPlaceInfo> hospitalsData = [];
+      
+      try {
+        hospitalsData = await FindHospitalWebService.getNearestHospital(
+            _locationData!.latitude!, _locationData!.longitude!, radius);
+      } catch (apiError) {
+        log('API failed, using dummy data: $apiError');
+        // Use dummy data as fallback
+        hospitalsData = MapsDummyDataService.generateDummyHospitals(
+          userLat: _locationData!.latitude!,
+          userLng: _locationData!.longitude!,
+          radiusKm: radius ?? 10.0,
+        );
+      }
 
       if (hospitalsData.isEmpty) {
-        emit(FindHospitalFailure(message: 'No hospitals found.'));
+        emit(FindHospitalFailure(message: 'No hospitals found in your area.'));
       } else {
         emit(FindHospitalSuccess(hospitalsList: hospitalsData));
-        log('Success: Loaded nearest hospitals.');
+        log('Success: Loaded ${hospitalsData.length} hospitals.');
       }
     } catch (err) {
       log('Error: $err');
+      emit(FindHospitalFailure(message: err.toString()));
+    }
+  }
+
+  /// Get dummy hospitals for testing (can be called directly)
+  Future<void> getDummyHospitals({double? radius}) async {
+    try {
+      emit(FindHospitalLoading());
+      _locationData ??= await _location.getLocation();
+      log('Loading dummy hospitals for testing...');
+
+      final List<FindHospitalsPlaceInfo> hospitalsData = 
+          MapsDummyDataService.generateDummyHospitals(
+        userLat: _locationData!.latitude!,
+        userLng: _locationData!.longitude!,
+        radiusKm: radius ?? 15.0,
+      );
+
+      if (hospitalsData.isEmpty) {
+        emit(FindHospitalFailure(message: 'No dummy hospitals available.'));
+      } else {
+        emit(FindHospitalSuccess(hospitalsList: hospitalsData));
+        log('Success: Loaded ${hospitalsData.length} dummy hospitals.');
+      }
+    } catch (err) {
+      log('Error loading dummy hospitals: $err');
       emit(FindHospitalFailure(message: err.toString()));
     }
   }

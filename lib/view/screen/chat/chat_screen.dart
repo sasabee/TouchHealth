@@ -194,10 +194,55 @@ class _ChatScreenState extends State<ChatScreen> {
             color: ColorManager.green,
           ),
           Gap(16.h),
-          Text("Start Chatting With TouchHealth",
+          Text("Start Chatting With TouchHealth AI",
               style: context.textTheme.bodyMedium),
+          Gap(24.h),
+          Text("Try asking about:",
+              style: context.textTheme.bodySmall?.copyWith(
+                color: ColorManager.grey,
+                fontWeight: FontWeight.w500,
+              )),
+          Gap(12.h),
+          _buildQuickPrompts(),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickPrompts() {
+    final prompts = [
+      "💊 My medications",
+      "🏥 Health tips",
+      "📊 My medical record",
+      "🩺 Symptom checker",
+    ];
+    
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 8.0,
+      children: prompts.map((prompt) => 
+        InkWell(
+          onTap: () {
+            _txtController.text = prompt.substring(2); // Remove emoji
+            _sendMessage();
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: ColorManager.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: ColorManager.green.withOpacity(0.3)),
+            ),
+            child: Text(
+              prompt,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: ColorManager.green,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ).toList(),
     );
   }
 

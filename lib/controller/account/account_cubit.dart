@@ -28,10 +28,9 @@ class AccountCubit extends Cubit<AccountState> {
           dob: '',
           gender: '',
           bloodType: '',
-          height: '',
-          weight: '',
-          chronicDiseases: '',
-          familyHistoryOfChronicDiseases: '',
+          saId: '',
+          medicalRecordNumber: '',
+          medicalRecordStatus: 'No medical records recorded yet',
         );
         await CacheData.setData(key: "name", value: demoUserData.name);
         await CacheData.setMapData(key: "userData", value: demoUserData.toJson());
@@ -60,10 +59,9 @@ class AccountCubit extends Cubit<AccountState> {
             dob: '',
             gender: '',
             bloodType: '',
-            height: '',
-            weight: '',
-            chronicDiseases: '',
-            familyHistoryOfChronicDiseases: '',
+            saId: '',
+            medicalRecordNumber: '',
+            medicalRecordStatus: 'No medical records recorded yet',
           );
           CacheData.setData(key: "name", value: fallbackUserData.name);
           CacheData.setMapData(key: "userData", value: fallbackUserData.toJson());
@@ -212,12 +210,9 @@ class AccountCubit extends Cubit<AccountState> {
     String? email,
     String? phoneNumber,
     String? dob,
-    String? height,
-    String? weight,
-    String? chronicDiseases,
-    String? familyHistoryOfChronicDiseases,
     String? gender,
     String? bloodType,
+    String? saId,
   }) async {
     emit(ProfileUpdateLoading());
     try {
@@ -230,12 +225,9 @@ class AccountCubit extends Cubit<AccountState> {
             'email': email,
             'phoneNumber': phoneNumber,
             'dob': dob,
-            'height': height,
-            'weight': weight,
             'gender': gender,
             'bloodType': bloodType,
-            'chronicDiseases': chronicDiseases,
-            'familyHistoryOfChronicDiseases': familyHistoryOfChronicDiseases
+            'saId': saId,
           })
           .whenComplete(() => emit(ProfileUpdateSuccess()))
           .timeout(const Duration(seconds: 5),

@@ -12,6 +12,11 @@ class MedicalRecordApiService {
     try {
       dev.log('Fetching medical record for patient ID: $patientId');
       
+      // Check if this is our demo patient "Mosa Lefu"
+      if (patientId.toLowerCase().contains('mosa') || patientId.toLowerCase().contains('lefu') || patientId == 'DEMO001') {
+        return _generateMosaLefuRecord(patientId);
+      }
+      
       // Convert patientId to valid user ID (1-10 for JSONPlaceholder)
       int userId = _convertToValidUserId(patientId);
       
@@ -26,7 +31,7 @@ class MedicalRecordApiService {
         // Generate comprehensive medical record
         final medicalRecord = _generateMedicalRecord(patientId, userData);
         
-        dev.log('Successfully generated medical record for patient: ${medicalRecord['name']}');
+        dev.log('Successfully generated medical record for patient: ${medicalRecord['patient']['name']}');
         return medicalRecord;
       } else {
         throw Exception('Failed to fetch user data: ${response.statusCode}');
@@ -168,6 +173,153 @@ class MedicalRecordApiService {
         'active': true,
         'lastUpdated': DateTime.now().toIso8601String(),
         'version': '1.0'
+      }
+    };
+  }
+
+  /// Generate demo record for Mosa Lefu
+  static Map<String, dynamic> _generateMosaLefuRecord(String patientId) {
+    return {
+      'patientId': patientId,
+      'recordId': 'MED-DEMO001',
+      'timestamp': DateTime.now().toIso8601String(),
+      
+      // Patient Information
+      'patient': {
+        'name': 'Mosa Lefu',
+        'email': 'mosa.lefu@touchhealth.com',
+        'phone': '+27-82-123-4567',
+        'username': 'mosalefu',
+        'website': 'www.touchhealth.com',
+        'address': {
+          'street': '123 Health Avenue',
+          'suite': 'Suite 101',
+          'city': 'Cape Town',
+          'zipcode': '8001',
+          'geo': {
+            'lat': '-33.9249',
+            'lng': '18.4241'
+          }
+        },
+        'company': {
+          'name': 'TouchHealth Technologies',
+          'catchPhrase': 'Revolutionizing healthcare with technology',
+          'bs': 'digital health solutions'
+        }
+      },
+      
+      // Medical Information
+      'medical': {
+        'age': 28,
+        'gender': 'Male',
+        'bloodType': 'O+',
+        'height': '178 cm',
+        'weight': '75 kg',
+        'emergencyContact': {
+          'name': 'Sarah Lefu',
+          'phone': '+27-82-987-6543',
+          'relationship': 'Spouse'
+        }
+      },
+      
+      // Vital Signs
+      'vitals': {
+        'bloodPressure': {
+          'systolic': 120,
+          'diastolic': 80,
+          'unit': 'mmHg'
+        },
+        'heartRate': {
+          'value': 72,
+          'unit': 'bpm'
+        },
+        'temperature': {
+          'value': 36.8,
+          'unit': '°C'
+        },
+        'oxygenSaturation': {
+          'value': 98,
+          'unit': '%'
+        },
+        'respiratoryRate': {
+          'value': 16,
+          'unit': 'breaths/min'
+        }
+      },
+      
+      // Medical History
+      'medicalHistory': {
+        'allergies': ['Peanuts'],
+        'chronicConditions': [],
+        'surgeries': [],
+        'familyHistory': ['Hypertension (Father)', 'Diabetes Type 2 (Mother)']
+      },
+      
+      // Current Medications
+      'medications': [
+        {
+          'name': 'Multivitamin',
+          'dosage': '1 tablet',
+          'frequency': 'Once daily',
+          'prescribedBy': 'Dr. Smith',
+          'startDate': '2024-01-15'
+        }
+      ],
+      
+      // Recent Lab Results
+      'labResults': {
+        'date': DateTime.now().subtract(Duration(days: 14)).toIso8601String(),
+        'results': {
+          'cholesterol': {
+            'total': 180,
+            'hdl': 55,
+            'ldl': 110,
+            'unit': 'mg/dL',
+            'status': 'Normal'
+          },
+          'glucose': {
+            'value': 90,
+            'unit': 'mg/dL',
+            'status': 'Normal'
+          },
+          'hemoglobin': {
+            'value': 14.5,
+            'unit': 'g/dL',
+            'status': 'Normal'
+          }
+        }
+      },
+      
+      // Appointments
+      'appointments': {
+        'last': {
+          'date': DateTime.now().subtract(Duration(days: 30)).toIso8601String(),
+          'doctor': 'Dr. John Smith',
+          'department': 'General Practice',
+          'notes': 'Annual health checkup - all results normal'
+        },
+        'next': {
+          'date': DateTime.now().add(Duration(days: 180)).toIso8601String(),
+          'doctor': 'Dr. John Smith',
+          'department': 'General Practice',
+          'notes': 'Follow-up appointment for annual checkup'
+        }
+      },
+      
+      // Insurance Information
+      'insurance': {
+        'provider': 'Discovery Health',
+        'policyNumber': 'POL-789456123',
+        'groupNumber': 'GRP-4567',
+        'effectiveDate': DateTime.now().subtract(Duration(days: 365)).toIso8601String()
+      },
+      
+      // Status
+      'status': {
+        'active': true,
+        'lastUpdated': DateTime.now().toIso8601String(),
+        'version': '1.0',
+        'notes': 'Demo patient record for TouchHealth application testing'
       }
     };
   }

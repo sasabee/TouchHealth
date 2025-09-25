@@ -26,4 +26,9 @@ class RouteManager {
   static const appUpdates = "/appUpdates";
   static const appSocialMedia = "/socialMedia";
   static const appFeedback = "/appFeedback";
+  static const String practitionerLogin = '/practitioner-login';
+  static const String practitionerDashboard = '/practitioner-dashboard';
+  static const String patientDetails = '/patient-details';
+  static const String addMedicalEntry = '/add-medical-entry';
+  static const String editPatientDemographics = '/edit-patient';
 }

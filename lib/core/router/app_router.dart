@@ -3,7 +3,14 @@ import '../../view/screen/account/about_us/app_updates_screen.dart';
 import '../../view/screen/account/about_us/social_media_screen.dart';
 import '../../view/screen/account/privacy_policy.dart';
 import '../../view/screen/account/terms_and_conditions.dart';
+import 'package:touchhealth/view/screen/practitioner/practitioner_login_screen.dart';
+import 'package:touchhealth/view/screen/practitioner/practitioner_dashboard.dart';
+import 'package:touchhealth/view/screen/practitioner/patient_details_screen.dart';
+import 'package:touchhealth/view/screen/practitioner/add_medical_entry_screen.dart';
+import '../../controller/auth/practitioner_auth/practitioner_auth_cubit.dart';
+import '../../controller/practitioner/patient_search_cubit.dart';
 import 'routes.dart';
+import 'package:touchhealth/view/screen/practitioner/edit_patient_screen.dart';
 import '../../controller/auth/log_out/log_out_cubit.dart';
 import '../../view/screen/account/delete_account/delete_account_screen.dart';
 import '../../view/screen/account/delete_account/re_auth_screen.dart';
@@ -13,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../controller/auth/sign_in/sign_in_cubit.dart';
 import '../../controller/auth/sign_up/sign_up_cubit.dart';
+import '../../controller/validation/formvalidation_cubit.dart';
 import '../../controller/launch_uri/launch_uri_cubit.dart';
 import '../../controller/maps/maps_cubit.dart';
 import '../../view/screen/account/about_us/about_us_screen.dart';
@@ -134,6 +142,44 @@ class AppRouter {
       case RouteManager.appFeedback:
         return PageTransitionManager.materialSlideTransition(
             const AppFeedbackScreen());
+      case RouteManager.practitionerLogin:
+        return PageTransitionManager.materialPageRoute(MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => PractitionerAuthCubit()),
+            BlocProvider(create: (_) => ValidationCubit()),
+          ],
+          child: const PractitionerLoginScreen(),
+        ));
+      case RouteManager.practitionerDashboard:
+        return PageTransitionManager.materialPageRoute(MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => PractitionerAuthCubit()),
+            BlocProvider(create: (_) => PatientSearchCubit()),
+          ],
+          child: const PractitionerDashboard(),
+        ));
+      case RouteManager.patientDetails:
+        final patient = settings.arguments as Map<String, dynamic>;
+        return PageTransitionManager.materialSlideTransition(BlocProvider(
+          create: (_) => PatientSearchCubit(),
+          child: PatientDetailsScreen(patient: patient),
+        ));
+      case RouteManager.addMedicalEntry:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransitionManager.materialSlideTransition(BlocProvider(
+          create: (_) => PatientSearchCubit(),
+          child: AddMedicalEntryScreen(
+            patientId: args['patientId'],
+            entryType: args['entryType'],
+          ),
+        ));
+      case RouteManager.editPatientDemographics:
+        final args = settings.arguments as Map<String, dynamic>;
+        return PageTransitionManager.materialSlideTransition(
+          EditPatientScreen(
+            patient: args,
+          ),
+        );
       default:
         return null;
     }

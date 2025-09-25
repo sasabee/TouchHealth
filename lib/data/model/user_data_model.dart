@@ -6,10 +6,9 @@ class UserDataModel {
   String dob;
   String gender;
   String bloodType;
-  String height;
-  String weight;
-  String chronicDiseases;
-  String familyHistoryOfChronicDiseases;
+  String saId;
+  String medicalRecordNumber;
+  String medicalRecordStatus;
 
   UserDataModel({
     required this.email,
@@ -19,10 +18,9 @@ class UserDataModel {
     required this.dob,
     required this.gender,
     required this.bloodType,
-    required this.height,
-    required this.weight,
-    required this.chronicDiseases,
-    required this.familyHistoryOfChronicDiseases,
+    required this.saId,
+    required this.medicalRecordNumber,
+    required this.medicalRecordStatus,
   });
 
   UserDataModel.fromJson(Map<String, dynamic> json)
@@ -33,10 +31,9 @@ class UserDataModel {
         dob = json['dob'],
         gender = json['gender'],
         bloodType = json['bloodType'],
-        height = json['height'],
-        weight = json['weight'],
-        chronicDiseases = json['chronicDiseases'],
-        familyHistoryOfChronicDiseases = json['familyHistoryOfChronicDiseases'];
+        saId = json['saId'] ?? '',
+        medicalRecordNumber = json['medicalRecordNumber'] ?? '',
+        medicalRecordStatus = json['medicalRecordStatus'] ?? 'No medical records recorded yet';
 
   Map<String, dynamic> toJson() {
     return {
@@ -47,10 +44,9 @@ class UserDataModel {
       'dob': dob,
       'gender': gender,
       'bloodType': bloodType,
-      'height': height,
-      'weight': weight,
-      'chronicDiseases': chronicDiseases,
-      'familyHistoryOfChronicDiseases': familyHistoryOfChronicDiseases,
+      'saId': saId,
+      'medicalRecordNumber': medicalRecordNumber,
+      'medicalRecordStatus': medicalRecordStatus,
     };
   }
   

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' hide TextDirection;
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:touchhealth/core/utils/helper/sa_id_validator.dart';
 
 part 'formvalidation_state.dart';
 
@@ -44,6 +45,14 @@ class ValidationCubit extends Cubit<FormvalidationState> {
     if (value == null || value.isEmpty) {
       return 'Please enter a password';
     }
+    
+    // Allow demo passwords to bypass validation
+    if (value == 'demo123' || value == 'doctor123' || value == 'nurse123') {
+      _password = value;
+      emit(PasswordValidationSuccess());
+      return null;
+    }
+    
     if (value.length < 8) {
       return 'Password must be at least 8 characters long';
     }
@@ -236,6 +245,19 @@ class ValidationCubit extends Cubit<FormvalidationState> {
       return 'Invalid year';
     }
 
+    return null;
+  }
+
+  /// Validates South African ID number
+  String? validateSAId(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'South African ID number cannot be empty';
+    }
+    
+    if (!SAIdValidator.isValidSAId(value)) {
+      return 'Please enter a valid South African ID number';
+    }
+    
     return null;
   }
 

@@ -1,9 +1,9 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:touchhealth/data/source/firebase/firebase_service.dart';
+import 'package:touchhealth/core/utils/helper/sa_id_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 part 'sign_up_state.dart';
@@ -42,22 +42,21 @@ class SignUpCubit extends Cubit<SignUpState> {
       required String dob,
       required String gender,
       required String bloodType,
-      required String height,
-      required String weight,
-      required String chronicDiseases,
-      required String familyHistoryOfChronicDiseases}) async {
+      required String saId}) async {
     emit(SignUpLoading());
     try {
+      // Extract info from SA ID
+      final saIdInfo = SAIdValidator.extractInfoFromSAId(saId);
+      final medicalRecordNumber = SAIdValidator.generateMedicalRecordNumber(saId);
+      
       await FirebaseService.storeUserData(
           name: name,
           phoneNumber: phoneNumber,
-          dob: dob,
-          gender: gender,
+          dob: saIdInfo?['dateOfBirth'] ?? dob,
+          gender: saIdInfo?['gender'] ?? gender,
           bloodType: bloodType,
-          height: height,
-          weight: weight,
-          chronicDiseases: chronicDiseases,
-          familyHistoryOfChronicDiseases: familyHistoryOfChronicDiseases);
+          saId: saId,
+          medicalRecordNumber: medicalRecordNumber);
       emit(CreateProfileSuccess());
     } on FirebaseException catch (err) {
       emit(CreateProfileFailure(errorMessage: err.message ?? err.code));

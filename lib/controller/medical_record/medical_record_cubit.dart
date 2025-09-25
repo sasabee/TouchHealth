@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:touchhealth/core/utils/constant/api_url.dart';
 import 'package:touchhealth/core/service/medical_record_api_service.dart';
+import 'package:touchhealth/core/service/patient_data_service.dart';
 import 'package:equatable/equatable.dart';
 
 part 'medical_record_state.dart';
@@ -28,8 +29,17 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
 
   Future<String> _generateMedicalRecordHtml(String patientId) async {
     try {
-      // Fetch real medical record data from API
-      final medicalRecord = await MedicalRecordApiService.getPatientRecord(patientId);
+      // Try to get current patient's medical record first
+      Map<String, dynamic>? medicalRecord;
+      
+      // Check if this is the current logged-in patient
+      final currentPatientMedicalNumber = await PatientDataService.getCurrentPatientMedicalNumber();
+      if (currentPatientMedicalNumber == patientId) {
+        medicalRecord = await PatientDataService.getCurrentPatientMedicalRecord();
+      }
+      
+      // Fallback to API service
+      medicalRecord ??= await MedicalRecordApiService.getPatientRecord(patientId);
       
       // Generate HTML with real data
       return '''data:text/html,
@@ -76,13 +86,15 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
             
             <div class="patient-info">
               <h2>👤 Patient Information</h2>
-              <p><strong>Name:</strong> ${medicalRecord['name']}</p>
-              <p><strong>DOB:</strong> ${medicalRecord['dateOfBirth']}</p>
-              <p><strong>Phone:</strong> ${medicalRecord['phone']}</p>
-              <p><strong>Email:</strong> ${medicalRecord['email']}</p>
-              <p><strong>Address:</strong> ${medicalRecord['address']}</p>
+              <p><strong>Name:</strong> ${medicalRecord['patient']['name']}</p>
+              <p><strong>Age:</strong> ${medicalRecord['medical']['age']} years</p>
+              <p><strong>Gender:</strong> ${medicalRecord['medical']['gender']}</p>
+              <p><strong>Blood Type:</strong> ${medicalRecord['medical']['bloodType']}</p>
+              <p><strong>Phone:</strong> ${medicalRecord['patient']['phone']}</p>
+              <p><strong>Email:</strong> ${medicalRecord['patient']['email']}</p>
+              <p><strong>Address:</strong> ${medicalRecord['patient']['address']['street']}, ${medicalRecord['patient']['address']['city']}</p>
               <p><strong>ID:</strong> ${patientId}</p>
-              <p><strong>Record ID:</strong> MED-${patientId.toUpperCase()}</p>
+              <p><strong>Record ID:</strong> ${medicalRecord['recordId']}</p>
               <p><strong>Last Updated:</strong> \${new Date().toLocaleDateString()}</p>
             </div>
             
@@ -91,19 +103,19 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
               <div class="vitals">
                 <div class="vital-card">
                   <strong>Blood Pressure</strong><br>
-                  ${medicalRecord['vitals']['bloodPressure']}
+                  ${medicalRecord['vitals']['bloodPressure']['systolic']}/${medicalRecord['vitals']['bloodPressure']['diastolic']} ${medicalRecord['vitals']['bloodPressure']['unit']}
                 </div>
                 <div class="vital-card">
                   <strong>Heart Rate</strong><br>
-                  ${medicalRecord['vitals']['heartRate']} bpm
+                  ${medicalRecord['vitals']['heartRate']['value']} ${medicalRecord['vitals']['heartRate']['unit']}
                 </div>
                 <div class="vital-card">
                   <strong>Temperature</strong><br>
-                  ${medicalRecord['vitals']['temperature']}°C
+                  ${medicalRecord['vitals']['temperature']['value']}${medicalRecord['vitals']['temperature']['unit']}
                 </div>
                 <div class="vital-card">
                   <strong>Oxygen Sat</strong><br>
-                  ${medicalRecord['vitals']['oxygenSaturation']}%
+                  ${medicalRecord['vitals']['oxygenSaturation']['value']}${medicalRecord['vitals']['oxygenSaturation']['unit']}
                 </div>
               </div>
             </div>
@@ -117,27 +129,27 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
             
             <div class="section">
               <h3>🔬 Recent Lab Results</h3>
-              <p><strong>Cholesterol:</strong> ${medicalRecord['labResults']['cholesterol']} mg/dL (${medicalRecord['labResults']['cholesterolStatus']})</p>
-              <p><strong>Glucose:</strong> ${medicalRecord['labResults']['glucose']} mg/dL (${medicalRecord['labResults']['glucoseStatus']})</p>
-              <p><strong>Hemoglobin:</strong> ${medicalRecord['labResults']['hemoglobin']} g/dL (${medicalRecord['labResults']['hemoglobinStatus']})</p>
+              <p><strong>Cholesterol:</strong> ${medicalRecord['labResults']['results']['cholesterol']['total']} mg/dL (${medicalRecord['labResults']['results']['cholesterol']['status']})</p>
+              <p><strong>Glucose:</strong> ${medicalRecord['labResults']['results']['glucose']['value']} mg/dL (${medicalRecord['labResults']['results']['glucose']['status']})</p>
+              <p><strong>Hemoglobin:</strong> ${medicalRecord['labResults']['results']['hemoglobin']['value']} g/dL (${medicalRecord['labResults']['results']['hemoglobin']['status']})</p>
             </div>
             
             <div class="section">
               <h3>📅 Appointments</h3>
-              <p><strong>Last Visit:</strong> ${medicalRecord['appointments']['lastVisit']['date']} - ${medicalRecord['appointments']['lastVisit']['doctor']} (${medicalRecord['appointments']['lastVisit']['type']})</p>
-              <p><strong>Next Visit:</strong> ${medicalRecord['appointments']['nextVisit']['date']} - ${medicalRecord['appointments']['nextVisit']['doctor']} (${medicalRecord['appointments']['nextVisit']['type']})</p>
+              <p><strong>Last Visit:</strong> ${medicalRecord['appointments']['last']['date']} - ${medicalRecord['appointments']['last']['doctor']} (${medicalRecord['appointments']['last']['department']})</p>
+              <p><strong>Next Visit:</strong> ${medicalRecord['appointments']['next']['date']} - ${medicalRecord['appointments']['next']['doctor']} (${medicalRecord['appointments']['next']['department']})</p>
             </div>
             
             <div class="section">
               <h3>⚠️ Allergies</h3>
-              <p>${medicalRecord['medicalHistory']['allergies'].join(', ')}</p>
+              <p>\${medicalRecord['medicalHistory']['allergies'].join(', ') || 'No known allergies'}</p>
             </div>
             
             <div class="section">
               <h3>🏥 Medical History</h3>
-              <p><strong>Chronic Conditions:</strong> ${medicalRecord['medicalHistory']['chronicConditions'].join(', ')}</p>
-              <p><strong>Previous Surgeries:</strong> ${medicalRecord['medicalHistory']['surgeries'].join(', ')}</p>
-              <p><strong>Family History:</strong> ${medicalRecord['medicalHistory']['familyHistory'].join(', ')}</p>
+              <p><strong>Chronic Conditions:</strong> \${medicalRecord['medicalHistory']['chronicConditions'].join(', ') || 'None'}</p>
+              <p><strong>Previous Surgeries:</strong> \${medicalRecord['medicalHistory']['surgeries'].join(', ') || 'None'}</p>
+              <p><strong>Family History:</strong> \${medicalRecord['medicalHistory']['familyHistory'].join(', ') || 'None reported'}</p>
             </div>
             
             <div class="section">
@@ -149,7 +161,7 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
             
             <div class="section">
               <h3>📋 Notes</h3>
-              <p>${medicalRecord['notes']}</p>
+              <p>\${medicalRecord['status']['notes'] || 'No additional notes'}</p>
             </div>
           \`;
         }, 1500);
@@ -183,7 +195,12 @@ class MedicalRecordCubit extends Cubit<MedicalRecordState> {
   }
 
   Future<void> initWebView() async {
-    final url = await _buildSafeUrl(defaultId);
+    // Try to load current patient's medical record first
+    final currentPatientMedicalNumber = await PatientDataService.getCurrentPatientMedicalNumber();
+    // Use a known demo record if no logged-in patient is detected to ensure Records tab always shows data
+    final id = currentPatientMedicalNumber ?? 'DEMO001';
+    
+    final url = await _buildSafeUrl(id);
     emit(state.copyWith(url: url));
   }
 

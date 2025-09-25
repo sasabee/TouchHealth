@@ -702,15 +702,31 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: CustomButton(
-                      isDisabled: _isLoading,
-                      size: Size(context.width * 0.475, 38.w),
-                      onPressed: () {
-                        context.bloc<MapsCubit>().getNearestHospitals();
-                      },
-                      title: "Find Hospitals",
-                      widget:
-                          _isLoading ? const ButtonLoadingIndicator() : null,
+                    child: Column(
+                      children: [
+                        CustomButton(
+                          isDisabled: _isLoading,
+                          size: Size(context.width * 0.475, 38.w),
+                          onPressed: () {
+                            context.bloc<MapsCubit>().getNearestHospitals();
+                          },
+                          title: "Find Hospitals",
+                          widget:
+                              _isLoading ? const ButtonLoadingIndicator() : null,
+                        ),
+                        Gap(8.h),
+                        CustomButton(
+                          isDisabled: _isLoading,
+                          size: Size(context.width * 0.475, 38.w),
+                          onPressed: () {
+                            context.bloc<MapsCubit>().getDummyHospitals();
+                          },
+                          title: "Load Demo Data",
+                          backgroundColor: ColorManager.green.withOpacity(0.8),
+                          widget:
+                              _isLoading ? const ButtonLoadingIndicator() : null,
+                        ),
+                      ],
                     ),
                   ),
                 ],

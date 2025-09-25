@@ -9,6 +9,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:touchhealth/core/service/nfc_service.dart';
 import 'package:touchhealth/core/service/qr_service.dart';
 import 'package:touchhealth/core/service/text_input_service.dart';
+import 'package:touchhealth/core/utils/helper/extention.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -779,174 +780,40 @@ class _NFCScreenState extends State<NFCScreen> {
   }
 
   void _openDownloadedFile() async {
-    if (_downloadedFilePath != null) {
-      try {
-        final file = File(_downloadedFilePath!);
-        if (await file.exists()) {
-          try {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  insetPadding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
-                  backgroundColor: ColorManager.white,
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 24.h, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: ColorManager.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "PDF File",
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                            color: ColorManager.green,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Your medical record PDF has been downloaded to:",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 14.sp, color: ColorManager.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: ColorManager.green.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: ColorManager.green,
-                              width: 1,
-                            ),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.w, vertical: 8.h),
-                          child: Text(
-                            file.path,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
-                              color: ColorManager.green,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 8,
-                          runSpacing: 10,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.of(context).pop();
-                                await Share.shareXFiles(
-                                  [XFile(file.path)],
-                                  text: 'Medical Record',
-                                  subject: 'Medical Record PDF',
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorManager.green,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w, vertical: 8.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.share, size: 16.w),
-                                  SizedBox(width: 8.w),
-                                  Text("Share"),
-                                ],
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.of(context).pop();
-                                _openFileWithOptions(file);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorManager.green,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w, vertical: 8.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.open_with, size: 16.w),
-                                  SizedBox(width: 8.w),
-                                  Text("Open With"),
-                                ],
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorManager.error,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w, vertical: 8.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.cancel, size: 16.w),
-                                  SizedBox(width: 8.w),
-                                  Text("Cancel"),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          } catch (e) {
-            log('Error opening file with share dialog: $e');
-            _showMessageDialog(
-                context, 'Error', 'Error opening file: ${e.toString()}',
-                isError: true);
-          }
-        } else {
-          _showMessageDialog(context, 'Error', 'File does not exist anymore',
-              isError: true);
-        }
-      } catch (e) {
-        log('Error opening file: $e');
-        _showMessageDialog(
-            context, 'Error', 'Error opening file: ${e.toString()}',
-            isError: true);
-      }
+    final path = _downloadedFilePath;
+    if (path == null) return;
+    final file = File(path);
+    if (!await file.exists()) {
+      _showMessageDialog(context, 'Error', 'File does not exist anymore', isError: true);
+      return;
     }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('PDF Downloaded'),
+        content: const Text('Your medical record PDF is ready. What would you like to do?'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Share.shareXFiles([XFile(file.path)], text: 'Medical Record', subject: 'Medical Record PDF');
+            },
+            child: const Text('Share'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              _openFileWithOptions(file);
+            },
+            child: const Text('Open'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _openFileWithOptions(File file) async {
@@ -980,174 +847,40 @@ class _NFCScreenState extends State<NFCScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: WebViewWidget(controller: _controller)),
-          // if (_isLoading)
-          //   const Center(
-          //     child: CircularProgressIndicator(
-          //       color: ColorManager.green,
-          //     ),
-          //   ),
-          if (_isScanning)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                  ButtonLoadingIndicator(),
-                    SizedBox(height: 20),
-                    Text(
-                      'Scanning NFC...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (_isQrScanning)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                  ButtonLoadingIndicator(),
-                    SizedBox(height: 20),
-                    Text(
-                      'Preparing QR Scanner...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (_isTextInputting)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                  ButtonLoadingIndicator(),
-                    SizedBox(height: 20),
-                    Text(
-                      'Processing Text Input...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          Positioned(
-            top: 40.h,
-            right: 8,
-            child: CustomToolTip(
-              bottomMargin: 20,
-              message: 'Reload',
-              child: FloatingActionButton.small(
-                heroTag: 'refreshButton',
-                shape: CircleBorder(),
-                backgroundColor: ColorManager.green,
-                onPressed: () => _controller.reload(),
-                child: const Icon(Icons.refresh, color: ColorManager.white),
-              ),
-            ),
-          ),
-        ],
+      backgroundColor: context.theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: const Text('Medical Record'),
+        backgroundColor: ColorManager.green,
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      body: Column(
         children: [
-          CustomToolTip(
-            bottomMargin: 20,
-            message: 'Share PDF',
-            child: FloatingActionButton.small(
-              heroTag: 'openFileButton',
-              backgroundColor:
-                  _isFileDownloaded ? ColorManager.green : ColorManager.grey,
-              onPressed: _isFileDownloaded ? _openDownloadedFile : null,
-              child: const Icon(Icons.open_in_new, color: ColorManager.white),
-            ),
+          Expanded(
+            child: WebViewWidget(controller: _controller),
           ),
-          Gap(10.h),
-          CustomToolTip(
-            bottomMargin: 20,
-            message: 'Download PDF',
-            child: FloatingActionButton.small(
-              heroTag: 'saveButton',
-              backgroundColor:
-                  (_cubit.nfcID != null || _cubit.nfcID?.isNotEmpty == true)
-                      ? ColorManager.green
-                      : ColorManager.grey,
-              onPressed: _cubit.nfcID != null
-                  ? () {
-                      String pdfUrl =
-                          '${EnvManager.medicalRecordPdfBackend}${_cubit.nfcID}/generate-pdf/';
-                      _downloadPDF(pdfUrl);
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.all(12.w),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48.h,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final url = _cubit.state.url;
+                    if (url.isNotEmpty) {
+                      _downloadPDF(url);
+                    } else {
+                      customSnackBar(context, 'Record not ready');
                     }
-                  : null,
-              child: const Icon(Icons.save, color: ColorManager.white),
-            ),
-          ),
-          Gap(10.h),
-          CustomToolTip(
-            bottomMargin: 20,
-            message: 'Enter Text ID',
-            child: FloatingActionButton(
-              heroTag: 'textButton',
-              backgroundColor: ColorManager.green,
-              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : () {
-                setState(() {
-                  _isTextInputting = true;
-                });
-                _showTextInputDialog();
-              },
-              child: const Icon(Icons.keyboard, color: ColorManager.white),
-            ),
-          ),
-          Gap(10.h),
-          CustomToolTip(
-            bottomMargin: 20,
-            message: 'Scan QR Code',
-            child: FloatingActionButton(
-              heroTag: 'qrButton',
-              backgroundColor: ColorManager.green,
-              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : () {
-                setState(() {
-                  _isQrScanning = true;
-                });
-                _showQRScanner();
-              },
-              child: const Icon(Icons.qr_code_scanner, color: ColorManager.white),
-            ),
-          ),
-          Gap(10.h),
-          CustomToolTip(
-            bottomMargin: 20,
-            message: 'Scan NFC',
-            child: FloatingActionButton(
-              heroTag: 'nfcButton',
-              backgroundColor: ColorManager.green,
-              onPressed: (_isScanning || _isQrScanning || _isTextInputting) ? null : _scanNFC,
-              child: const Icon(Icons.nfc, color: ColorManager.white),
+                  },
+                  icon: const Icon(Icons.download),
+                  label: const Text('Save'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorManager.green,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ),
         ],

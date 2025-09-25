@@ -40,10 +40,7 @@ class _CreateProfileState extends State<CreateProfile> {
   String? _dob;
   String? _gender;
   String? _bloodType;
-  String? _height;
-  String? _weight;
-  String? _chronicDiseases;
-  String? _familyHistoryOfChronicDiseases;
+  String? _saId;
   List<Item> genderList = const [
     Item("Male", Icons.male),
     Item("Female", Icons.female),
@@ -133,11 +130,7 @@ class _CreateProfileState extends State<CreateProfile> {
                           dob: _dob!,
                           gender: _gender!,
                           bloodType: _bloodType!,
-                          height: _height!,
-                          weight: _weight!,
-                          chronicDiseases: _chronicDiseases!,
-                          familyHistoryOfChronicDiseases:
-                              _familyHistoryOfChronicDiseases!,
+                          saId: _saId!,
                         );
                         await cubit.verifyEmail();
                       }
@@ -178,14 +171,13 @@ class _CreateProfileState extends State<CreateProfile> {
             validator: cubit.phoneNumberValidator,
           ),
           CustomTextFormField(
-            initialValue: "dd/mm/yyyy",
-            keyboardType: TextInputType.datetime,
-            title: "Date of birth",
-            hintText: "Enter your Date of birth",
+            keyboardType: TextInputType.number,
+            title: "South African ID Number",
+            hintText: "Enter your SA ID (13 digits)",
             onSaved: (data) {
-              _dob = data;
+              _saId = data;
             },
-            validator: cubit.validateDateOfBirth,
+            validator: cubit.validateSAId,
           ),
           CustomDropDownField(
             hintText: "Enter your Gender",
@@ -202,53 +194,6 @@ class _CreateProfileState extends State<CreateProfile> {
               onSaved: (data) {
                 _bloodType = data!.name.toString();
               }),
-          Row(
-            children: [
-              Expanded(
-                child: CustomTextFormField(
-                  keyboardType: TextInputType.number,
-                  title: "Height ( CM )",
-                  hintText: "Enter your height",
-                  onSaved: (data) {
-                    _height = data!;
-                  },
-                  validator: cubit.heightValidator,
-                ),
-              ),
-              Gap(18),
-              Expanded(
-                child: CustomTextFormField(
-                  keyboardType: TextInputType.number,
-                  title: "Weight ( KG )",
-                  hintText: "Enter your weight",
-                  onSaved: (data) {
-                    _weight = data!;
-                  },
-                  validator: cubit.weightValidator,
-                ),
-              ),
-            ],
-          ),
-          CustomTextFormField(
-            keyboardType: TextInputType.multiline,
-            maxLines: 4,
-            closeWhenTapOutside: true,
-            title: "chronic diseases",
-            hintText: "Enter your chronic diseases",
-            onSaved: (data) {
-              _chronicDiseases = data;
-            },
-          ),
-          CustomTextFormField(
-            keyboardType: TextInputType.multiline,
-            maxLines: 4,
-            closeWhenTapOutside: true,
-            title: "Family history of chronic diseases",
-            hintText: "Enter your Family history of chronic diseases",
-            onSaved: (data) {
-              _familyHistoryOfChronicDiseases = data;
-            },
-          ),
         ],
       ),
     );

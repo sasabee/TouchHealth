@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "E:/my_projects/dr_ai/linux"
+  "cmake.sourceDirectory": "E:/my_projects/dr_ai/linux",
+  "dart.flutterSdkPath": ".fvm/versions/3.24.4"
 }

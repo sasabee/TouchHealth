@@ -74,24 +74,35 @@ class ChatCubit extends Cubit<ChatState> {
 
       emit(ChatReceiverLoading());
 
+      // Enhanced health-focused content
       final List<Content> content = [
         ...AiConstantsContent.content,
+        Content.text("Current conversation context:"),
         ...(_messagesBox?.values
             .toList()
-            .map((msg) => Content.text(msg.message))
+            .reversed
+            .take(10) // Limit context to last 10 messages for better performance
+            .toList()
+            .reversed
+            .map((msg) => Content.text("${msg.isUser ? 'User' : 'TouchHealth AI'}: ${msg.message}"))
             .toList() ??
             []),
+        Content.text("Please provide a helpful, health-focused response. If the user asks about medical records, medications, or health advice, be specific and actionable."),
       ];
+      
       final response = await GenerativeAiWebService.postData(content: content);
-      log(response.toString());
+      log('TouchHealth AI Response: ${response.toString()}');
+      
       await _messagesBox?.add(ChatMessageModel(
         isUser: false,
-        message: response ?? "ERROR",
+        message: response ?? "I apologize, but I'm experiencing technical difficulties. Please try asking your question again.",
         timeTamp: dateTimeFormatter(),
       ));
       emit(ChatSendSuccess());
     } on HiveError catch (err) {
       emit(ChatFailure(message: err.message.toString()));
+    } catch (e) {
+      emit(ChatFailure(message: "Failed to send message: ${e.toString()}"));
     }
   }
 
